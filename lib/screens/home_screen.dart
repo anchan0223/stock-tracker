@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'setting.dart';
+import 'newfeed_screen.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({Key? key}) : super(key: key);
@@ -16,7 +17,7 @@ class _HomeScreenState extends State<HomeScreen> {
   final List<Widget> _screens = [
     const HomeTab(), // Home Screen
     const StocksTab(), // Stocks Screen
-    const NewsTab(), // News Screen
+    const NewsTab(), // News Screen (updated to use NewsFeedScreen)
     const SettingsScreen(), // Updated Settings Page
   ];
 
@@ -116,9 +117,8 @@ class NewsTab extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return const Center(
-      child: Text('News Screen Content'),
-    );
+    // This is where you update the NewsTab to show the NewsFeedScreen
+    return NewsFeedScreen(); // Use the NewsFeedScreen for displaying the stock news feed
   }
 }
 

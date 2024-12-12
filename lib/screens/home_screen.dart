@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'setting.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({Key? key}) : super(key: key);
@@ -16,7 +17,7 @@ class _HomeScreenState extends State<HomeScreen> {
     const HomeTab(), // Home Screen
     const StocksTab(), // Stocks Screen
     const NewsTab(), // News Screen
-    const SettingsTab(), // Settings Screen
+    const SettingsScreen(), // Updated Settings Page
   ];
 
   // Update the current index when a new tab is selected
@@ -30,13 +31,13 @@ class _HomeScreenState extends State<HomeScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Search stocks'),
+        title: const Text('Search Stocks'),
         backgroundColor: Colors.blue[100],
         actions: [
           IconButton(
             icon: const Icon(Icons.search),
             onPressed: () {
-              // You can add search functionality here
+              // Add search functionality here
             },
           ),
         ],
@@ -45,6 +46,9 @@ class _HomeScreenState extends State<HomeScreen> {
       bottomNavigationBar: BottomNavigationBar(
         currentIndex: _currentIndex,
         onTap: _onTabSelected,
+        type: BottomNavigationBarType.fixed,
+        selectedItemColor: Colors.blue,
+        unselectedItemColor: Colors.grey,
         items: [
           BottomNavigationBarItem(
             icon: Image.asset(
@@ -84,17 +88,14 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 }
 
-// Dummy screens for each tab (Home, Stocks, News, Settings)
+// Dummy screens for each tab (Home, Stocks, News)
 class HomeTab extends StatelessWidget {
   const HomeTab({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      children: const [
-        Text('Home Screen Content'),
-        // Add more widgets as needed
-      ],
+    return const Center(
+      child: Text('Home Screen Content'),
     );
   }
 }
@@ -104,11 +105,8 @@ class StocksTab extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      children: const [
-        Text('Stocks Screen Content'),
-        // Add stock-related widgets here
-      ],
+    return const Center(
+      child: Text('Stocks Screen Content'),
     );
   }
 }
@@ -118,24 +116,62 @@ class NewsTab extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      children: const [
-        Text('News Screen Content'),
-        // Add news-related widgets here
-      ],
+    return const Center(
+      child: Text('News Screen Content'),
     );
   }
 }
 
-class SettingsTab extends StatelessWidget {
-  const SettingsTab({Key? key}) : super(key: key);
+// Updated Settings Screen with Logout Button
+class SettingsScreen extends StatelessWidget {
+  const SettingsScreen({Key? key}) : super(key: key);
+
+  void _logOut(BuildContext context) {
+    // Perform log out action, like navigating back to login
+    Navigator.of(context).pushReplacementNamed('/login');
+  }
 
   @override
   Widget build(BuildContext context) {
     return Column(
-      children: const [
-        Text('Settings Screen Content'),
-        // Add settings-related widgets here
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: [
+        const Text(
+          'Settings',
+          style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+        ),
+        const SizedBox(height: 20),
+        ListTile(
+          leading: const Icon(Icons.person),
+          title: const Text('Account'),
+          onTap: () {
+            // Navigate to Account settings or perform action
+          },
+        ),
+        ListTile(
+          leading: const Icon(Icons.notifications),
+          title: const Text('Notifications'),
+          onTap: () {
+            // Navigate to Notification settings or perform action
+          },
+        ),
+        ListTile(
+          leading: const Icon(Icons.privacy_tip),
+          title: const Text('Privacy'),
+          onTap: () {
+            // Navigate to Privacy settings or perform action
+          },
+        ),
+        const SizedBox(height: 40),
+        ElevatedButton.icon(
+          onPressed: () => _logOut(context),
+          icon: const Icon(Icons.logout),
+          label: const Text('Log Out'),
+          style: ElevatedButton.styleFrom(
+            backgroundColor: Colors.redAccent,
+            padding: const EdgeInsets.symmetric(horizontal: 30, vertical: 10),
+          ),
+        ),
       ],
     );
   }

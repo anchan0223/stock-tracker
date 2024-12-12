@@ -117,17 +117,14 @@ class NewsTab extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // This is where you update the NewsTab to show the NewsFeedScreen
-    return NewsFeedScreen(); // Use the NewsFeedScreen for displaying the stock news feed
+    return NewsFeedScreen();
   }
 }
 
-// Updated Settings Screen with Logout Button
 class SettingsScreen extends StatelessWidget {
   const SettingsScreen({Key? key}) : super(key: key);
 
   void _logOut(BuildContext context) {
-    // Perform log out action, like navigating back to login
     Navigator.of(context).pushReplacementNamed('/login');
   }
 

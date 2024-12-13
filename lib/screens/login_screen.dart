@@ -49,7 +49,10 @@ class _LoginScreenState extends State<LoginScreen> {
     return WillPopScope(
       onWillPop: () async => false, // Prevent the back button
       child: Scaffold(
-        appBar: AppBar(title: const Text('Login')),
+        appBar: AppBar(
+          title: const Text('Login'),
+          backgroundColor: Colors.blue[100],
+        ),
         body: Padding(
           padding: const EdgeInsets.all(16.0),
           child: Form(

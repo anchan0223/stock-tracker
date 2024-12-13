@@ -49,7 +49,10 @@ class _SignUpScreenState extends State<SignUpScreen> {
     return WillPopScope(
       onWillPop: () async => false, // Prevent the back button
       child: Scaffold(
-        appBar: AppBar(title: const Text('Sign Up')),
+        appBar: AppBar(
+          title: const Text('Sign Up'),
+          backgroundColor: Colors.blue[100],
+        ),
         body: Padding(
           padding: const EdgeInsets.all(16.0),
           child: Form(

@@ -1,6 +1,10 @@
 import 'package:flutter/material.dart';
 import 'setting.dart';
 import 'newfeed_screen.dart';
+import '../services/finnhub_service.dart';
+import 'package:http/http.dart' as http;
+import 'dart:convert';
+import 'stock_detail_screen.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({Key? key}) : super(key: key);
@@ -31,18 +35,7 @@ class _HomeScreenState extends State<HomeScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Search Stocks'),
-        backgroundColor: Colors.blue[100],
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.search),
-            onPressed: () {
-              // Add search functionality here
-            },
-          ),
-        ],
-      ),
+
       body: _screens[_currentIndex], // Display the selected screen
       bottomNavigationBar: BottomNavigationBar(
         currentIndex: _currentIndex,
@@ -95,19 +88,107 @@ class HomeTab extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return const Center(
-      child: Text('Home Screen Content'),
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text('Stock Tracker App'),
+        backgroundColor: Colors.blue[100],
+      ),
+      body: const Center(
+        child: Text('Home Screen Content'),
+      ),
     );
   }
 }
 
-class StocksTab extends StatelessWidget {
+class StocksTab extends StatefulWidget {
   const StocksTab({Key? key}) : super(key: key);
 
   @override
+  _StocksTabState createState() => _StocksTabState();
+}
+
+class _StocksTabState extends State<StocksTab> {
+  final TextEditingController _searchController = TextEditingController();
+  List<Map<String, dynamic>> searchResults = [];
+  bool isLoading = false;
+
+  void _onSearchChanged(String query) async {
+    setState(() {
+      isLoading = true;
+    });
+
+    if (query.isEmpty) {
+      setState(() {
+        searchResults = [];
+        isLoading = false;
+      });
+      return;
+    }
+
+    try {
+      final results = await FinnhubService.searchStocks(query);
+      setState(() {
+        searchResults = results;
+        isLoading = false;
+      });
+    } catch (e) {
+      print('Error searching stocks: $e');
+      setState(() {
+        isLoading = false;
+      });
+    }
+  }
+
+  @override
   Widget build(BuildContext context) {
-    return const Center(
-      child: Text('Stocks Screen Content'),
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text('Search Stocks'),
+        backgroundColor: Colors.blue[100],
+      ),
+      body: Column(
+        children: [
+          Padding(
+            padding: const EdgeInsets.all(16.0),
+            child: TextField(
+              controller: _searchController,
+              onChanged: _onSearchChanged,
+              decoration: InputDecoration(
+                hintText: 'Search stocks...',
+                prefixIcon: const Icon(Icons.search),
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(10),
+                ),
+              ),
+            ),
+          ),
+          Expanded(
+            child: isLoading
+                ? const Center(child: CircularProgressIndicator())
+                : ListView.builder(
+                    itemCount: searchResults.length,
+                    itemBuilder: (context, index) {
+                      final stock = searchResults[index];
+                      return ListTile(
+                        title: Text(stock['description'] ?? ''),
+                        subtitle: Text(stock['symbol'] ?? ''),
+                        onTap: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => StockDetailScreen(
+                                symbol: stock['symbol'] ?? '',
+                                name: stock['description'] ?? '',
+                              ),
+                            ),
+                          );
+                        },
+                      );
+                    },
+                  ),
+          ),
+        ],
+      ),
     );
   }
 }
@@ -130,13 +211,14 @@ class SettingsScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      mainAxisAlignment: MainAxisAlignment.center,
-      children: [
-        const Text(
-          'Settings',
-          style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
-        ),
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text('Settings'),
+        backgroundColor: Colors.blue[100],
+      ),
+      body: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
         const SizedBox(height: 20),
         ListTile(
           leading: const Icon(Icons.person),
@@ -166,10 +248,11 @@ class SettingsScreen extends StatelessWidget {
           label: const Text('Log Out'),
           style: ElevatedButton.styleFrom(
             backgroundColor: Colors.redAccent,
-            padding: const EdgeInsets.symmetric(horizontal: 30, vertical: 10),
+              padding: const EdgeInsets.symmetric(horizontal: 30, vertical: 10),
+            ),
           ),
-        ),
-      ],
+        ],
+      ),
     );
   }
 }

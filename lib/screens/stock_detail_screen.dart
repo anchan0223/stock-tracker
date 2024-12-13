@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import '../services/finnhub_service.dart';
 import 'package:fl_chart/fl_chart.dart';
 import 'dart:math' show min, max;
+import '../services/firestore_service.dart';
 
 class StockDetailScreen extends StatefulWidget {
   final String symbol;
@@ -36,6 +37,7 @@ class _StockDetailScreenState extends State<StockDetailScreen> {
   void initState() {
     super.initState();
     _loadData();
+    _checkWatchlistStatus();
   }
   //get data from finnhub
   Future<void> _loadData() async {
@@ -76,25 +78,34 @@ class _StockDetailScreenState extends State<StockDetailScreen> {
     }
   }
 
+  Future<void> _checkWatchlistStatus() async {
+    final status = await FirestoreService.isInWatchlist(widget.symbol);
+    setState(() {
+      isInWatchlist = status;
+    });
+  }
+
+  Future<void> _toggleWatchlist() async {
+    try {
+      if (isInWatchlist) {
+        await FirestoreService.removeFromWatchlist(widget.symbol);
+      } else {
+        await FirestoreService.addToWatchlist(widget.symbol, widget.name);
+      }
+      setState(() {
+        isInWatchlist = !isInWatchlist;
+      });
+    } catch (e) {
+      print('Error toggling watchlist: $e');
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         title: Text(widget.symbol),
         backgroundColor: Colors.blue[100],
-        actions: [
-          IconButton(
-            icon: Icon(
-              isInWatchlist ? Icons.star : Icons.star_border,
-              color: isInWatchlist ? Colors.amber : null,
-            ),
-            onPressed: () {
-              setState(() {
-                isInWatchlist = !isInWatchlist;
-              });
-            },
-          ),
-        ],
       ),
       body: isLoading
           ? const Center(child: CircularProgressIndicator())
@@ -115,7 +126,6 @@ class _StockDetailScreenState extends State<StockDetailScreen> {
 
   //build header
   Widget _buildHeader() {
-    //price change & percentage change
     double priceChange = (stockDetails['c'] ?? 0.0) - (stockDetails['pc'] ?? 0.0);
     double percentageChange = (priceChange / (stockDetails['pc'] ?? 1)) * 100;
     Color changeColor = priceChange >= 0 ? Colors.green : Colors.red;
@@ -153,6 +163,24 @@ class _StockDetailScreenState extends State<StockDetailScreen> {
                 ),
               ),
             ],
+          ),
+          const SizedBox(height: 16),
+          ElevatedButton.icon(
+            onPressed: _toggleWatchlist,
+            icon: Icon(
+              isInWatchlist ? Icons.star : Icons.star_border,
+              color: isInWatchlist ? Colors.amber : Colors.white,
+            ),
+            label: Text(
+              isInWatchlist ? 'Remove from Watchlist' : 'Add to Watchlist',
+              style: const TextStyle(fontSize: 16),
+            ),
+            style: ElevatedButton.styleFrom(
+              backgroundColor: isInWatchlist ? Colors.grey[200] : Colors.blue,
+              foregroundColor: isInWatchlist ? Colors.black87 : Colors.white,
+              padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+              minimumSize: const Size(double.infinity, 48),
+            ),
           ),
         ],
       ),

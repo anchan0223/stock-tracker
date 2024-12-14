@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'profile.dart'; // Import Profile Details Screen
+import 'notifications.dart'; // Import Notification Settings Screen
+import 'privacy_settings.dart'; // Import Privacy Settings Screen
 
 class SettingsScreen extends StatelessWidget {
   const SettingsScreen({Key? key}) : super(key: key);
@@ -7,24 +10,32 @@ class SettingsScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-        appBar: AppBar(
+      appBar: AppBar(
         title: const Text('Settings'),
         backgroundColor: Colors.blue[100],
       ),
       body: ListView(
         children: [
           // Profile Section
-          const ListTile(
-            leading: Icon(Icons.person, size: 30, color: Colors.blue),
-            title: Text(
+          ListTile(
+            leading: const Icon(Icons.person, size: 30, color: Colors.blue),
+            title: const Text(
               'User Profile',
               style: TextStyle(fontSize: 18, fontWeight: FontWeight.w500),
             ),
-            subtitle: Text('View and edit your profile'),
+            subtitle: const Text('View and edit your profile'),
+            onTap: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => const ProfileDetailsScreen(),
+                ),
+              );
+            },
           ),
           const Divider(),
 
-          // General Settings
+          // Notification Settings Section
           ListTile(
             leading:
                 const Icon(Icons.notifications, size: 30, color: Colors.orange),
@@ -33,11 +44,17 @@ class SettingsScreen extends StatelessWidget {
               style: TextStyle(fontSize: 18, fontWeight: FontWeight.w500),
             ),
             onTap: () {
-              ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(content: Text('Notification settings tapped!')),
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => const NotificationSettingsScreen(),
+                ),
               );
             },
           ),
+          const Divider(),
+
+          // Privacy Settings Section
           ListTile(
             leading: const Icon(Icons.security, size: 30, color: Colors.green),
             title: const Text(
@@ -45,8 +62,11 @@ class SettingsScreen extends StatelessWidget {
               style: TextStyle(fontSize: 18, fontWeight: FontWeight.w500),
             ),
             onTap: () {
-              ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(content: Text('Privacy settings tapped!')),
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => const PrivacySettingsScreen(),
+                ),
               );
             },
           ),

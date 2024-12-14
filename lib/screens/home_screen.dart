@@ -21,13 +21,13 @@ class _HomeScreenState extends State<HomeScreen> {
 
 //tab screens
   final List<Widget> _screens = [
-    const HomeTab(),
-    const StocksTab(), 
-    const NewsTab(), 
-    const SettingsScreen(), 
+    HomeTab(),
+    const StocksTab(),
+    const NewsTab(),
+    const SettingsScreen(),
   ];
 
- //update page index
+  //update page index
   void _onTabSelected(int index) {
     setState(() {
       _currentIndex = index;
@@ -85,12 +85,11 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 }
 
-//home
 class HomeTab extends StatelessWidget {
   const HomeTab({Key? key}) : super(key: key);
 
   void _navigateToStocksTab(BuildContext context) {
-    //update current index
+    // Update current index
     final homeScreen = context.findAncestorStateOfType<_HomeScreenState>();
     if (homeScreen != null) {
       homeScreen._onTabSelected(1); // 1 is the index of the Stocks tab
@@ -112,7 +111,6 @@ class HomeTab extends StatelessWidget {
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                //watchlist preview
                 const Text(
                   'Watchlist',
                   style: TextStyle(
@@ -120,7 +118,7 @@ class HomeTab extends StatelessWidget {
                     fontWeight: FontWeight.bold,
                   ),
                 ),
-                //navigate to stocks tab
+                // Navigate to stocks tab
                 TextButton(
                   onPressed: () => _navigateToStocksTab(context),
                   child: const Text(
@@ -134,23 +132,23 @@ class HomeTab extends StatelessWidget {
               ],
             ),
             const SizedBox(height: 8),
-            //watchlist display
+            // Watchlist display
             StreamBuilder<QuerySnapshot>(
               stream: FirestoreService.getWatchlist(),
               builder: (context, snapshot) {
-                //error handling
+                // Error handling
                 if (snapshot.hasError) {
                   return const Text('Error loading watchlist');
                 }
 
-                //loading state
+                // Loading state
                 if (snapshot.connectionState == ConnectionState.waiting) {
                   return const Center(child: CircularProgressIndicator());
                 }
 
                 final watchlist = snapshot.data?.docs ?? [];
 
-                //empty watchlist
+                // Empty watchlist
                 if (watchlist.isEmpty) {
                   return Card(
                     child: Padding(
@@ -158,7 +156,8 @@ class HomeTab extends StatelessWidget {
                       child: Column(
                         mainAxisSize: MainAxisSize.min,
                         children: [
-                          Icon(Icons.star_border, size: 48, color: Colors.grey[400]),
+                          Icon(Icons.star_border,
+                              size: 48, color: Colors.grey[400]),
                           const SizedBox(height: 8),
                           Text(
                             'No stocks in watchlist',
@@ -177,14 +176,15 @@ class HomeTab extends StatelessWidget {
                   );
                 }
 
-                //show first 5 stocks
+                // Show first 5 stocks
                 final topStocks = watchlist.take(5).toList();
 
-                //display stocks
+                // Display stocks
                 return Column(
                   children: [
                     for (var stock in topStocks)
-                      _buildWatchlistItem(stock.data() as Map<String, dynamic>, context),
+                      _buildWatchlistItem(
+                          stock.data() as Map<String, dynamic>, context),
                   ],
                 );
               },
@@ -195,57 +195,63 @@ class HomeTab extends StatelessWidget {
     );
   }
 
-  //display stock tile
+  // Display stock tile
   Widget _buildWatchlistItem(Map<String, dynamic> stock, BuildContext context) {
     return Card(
       margin: const EdgeInsets.only(bottom: 8),
       child: FutureBuilder<Map<String, dynamic>>(
         future: FinnhubService.getStockDetails(stock['symbol']),
         builder: (context, snapshot) {
-          //get stock details
+          // Get stock details
           final stockDetails = snapshot.data ?? {};
           final currentPrice = stockDetails['c']?.toStringAsFixed(2);
-          final priceChange = (stockDetails['c'] ?? 0.0) - (stockDetails['pc'] ?? 0.0);
-          final changePercent = ((priceChange / (stockDetails['pc'] ?? 1)) * 100).toStringAsFixed(2); //change percentage
+          final priceChange =
+              (stockDetails['c'] ?? 0.0) - (stockDetails['pc'] ?? 0.0);
+          final changePercent =
+              ((priceChange / (stockDetails['pc'] ?? 1)) * 100)
+                  .toStringAsFixed(2); // Change percentage
           final isPositive = priceChange >= 0;
 
-          //display stock tile
+          // Display stock tile
           return ListTile(
             leading: const Icon(Icons.star, color: Colors.amber),
             title: Text(stock['symbol']),
             subtitle: Text(stock['name']),
-            trailing: snapshot.hasData ? Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Text(
-                  '\$$currentPrice',
-                  style: const TextStyle(
-                    fontWeight: FontWeight.bold,
+            trailing: snapshot.hasData
+                ? Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Text(
+                        '\$$currentPrice',
+                        style: const TextStyle(
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                      const SizedBox(width: 8),
+                      Container(
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 6, vertical: 2),
+                        decoration: BoxDecoration(
+                          color: isPositive ? Colors.green[50] : Colors.red[50],
+                          borderRadius: BorderRadius.circular(4),
+                        ),
+                        child: Text(
+                          '${isPositive ? '+' : ''}$changePercent%',
+                          style: TextStyle(
+                            color: isPositive ? Colors.green : Colors.red,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      ),
+                    ],
+                  )
+                : const SizedBox(
+                    height: 20,
+                    width: 20,
+                    child: CircularProgressIndicator(strokeWidth: 2),
                   ),
-                ),
-                const SizedBox(width: 8),
-                Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
-                  decoration: BoxDecoration(
-                    color: isPositive ? Colors.green[50] : Colors.red[50],
-                    borderRadius: BorderRadius.circular(4),
-                  ),
-                  child: Text(
-                    '${isPositive ? '+' : ''}$changePercent%',
-                    style: TextStyle(
-                      color: isPositive ? Colors.green : Colors.red,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                ),
-              ],
-            ) : const SizedBox(
-              height: 20,
-              width: 20,
-              child: CircularProgressIndicator(strokeWidth: 2),
-            ),
             onTap: () {
-              //navigate to stock detail screen
+              // Navigate to stock detail screen
               Navigator.push(
                 context,
                 MaterialPageRoute(
@@ -260,6 +266,100 @@ class HomeTab extends StatelessWidget {
         },
       ),
     );
+  }
+}
+
+class NewsFeedSection extends StatefulWidget {
+  const NewsFeedSection({Key? key}) : super(key: key);
+
+  @override
+  _NewsFeedSectionState createState() => _NewsFeedSectionState();
+}
+
+class _NewsFeedSectionState extends State<NewsFeedSection> {
+  List<dynamic> newsArticles = [];
+  bool isLoading = true;
+
+  @override
+  void initState() {
+    super.initState();
+    _fetchNews();
+  }
+
+  // Fetch news from the Finnhub API
+  Future<void> _fetchNews() async {
+    const String apiKey =
+        'ctd7ua9r01qlc0v08s80ctd7ua9r01qlc0v08s8g'; // Replace with your API key
+    const String url =
+        'https://finnhub.io/api/v1/news?category=general&token=$apiKey';
+
+    try {
+      final response = await http.get(Uri.parse(url));
+
+      if (response.statusCode == 200) {
+        final data = json.decode(response.body);
+        setState(() {
+          newsArticles = data;
+          isLoading = false;
+        });
+      } else {
+        throw Exception('Failed to load news');
+      }
+    } catch (e) {
+      setState(() {
+        isLoading = false;
+      });
+      print('Error fetching news: $e');
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return isLoading
+        ? const Center(
+            child: CircularProgressIndicator()) // Show loading indicator
+        : Column(
+            children: newsArticles.map((article) {
+              return GestureDetector(
+                onTap: () {
+                  // Navigate to the full news screen with article data
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => NewsDetailScreen(newsItem: article),
+                    ),
+                  );
+                },
+                child: Container(
+                  margin:
+                      const EdgeInsets.symmetric(vertical: 8, horizontal: 16),
+                  decoration: BoxDecoration(
+                    border: Border.all(color: Colors.blueAccent, width: 1),
+                    borderRadius: BorderRadius.circular(10),
+                    color: Colors.blue[50],
+                  ),
+                  padding: const EdgeInsets.all(16),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        article['headline'] ?? 'No headline',
+                        style: const TextStyle(
+                          fontSize: 18,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                      const SizedBox(height: 8),
+                      Text(
+                        article['summary'] ?? 'No description available.',
+                        style: const TextStyle(fontSize: 14),
+                      ),
+                    ],
+                  ),
+                ),
+              );
+            }).toList(),
+          );
   }
 }
 
@@ -332,25 +432,25 @@ class _StocksTabState extends State<StocksTab> {
                   borderRadius: BorderRadius.circular(10),
                 ),
                 suffixIcon: _searchController.text.isNotEmpty
-                  ? IconButton(
-                      icon: const Icon(Icons.clear),
-                      onPressed: () {
-                        _searchController.clear();
-                        _onSearchChanged('');
-                      },
-                    )
-                  : null,
+                    ? IconButton(
+                        icon: const Icon(Icons.clear),
+                        onPressed: () {
+                          _searchController.clear();
+                          _onSearchChanged('');
+                        },
+                      )
+                    : null,
               ),
             ),
           ),
 
           //search results or watchlist
           Expanded(
-            child: isLoading 
-              ? const Center(child: CircularProgressIndicator())
-              : isSearching 
-                ? _buildSearchResults()
-                : _buildWatchlist(),
+            child: isLoading
+                ? const Center(child: CircularProgressIndicator())
+                : isSearching
+                    ? _buildSearchResults()
+                    : _buildWatchlist(),
           ),
         ],
       ),
@@ -445,9 +545,13 @@ class _StocksTabState extends State<StocksTab> {
                     future: FinnhubService.getStockDetails(stock['symbol']),
                     builder: (context, snapshot) {
                       final stockDetails = snapshot.data ?? {};
-                      final currentPrice = stockDetails['c']?.toStringAsFixed(2);
-                      final priceChange = (stockDetails['c'] ?? 0.0) - (stockDetails['pc'] ?? 0.0);
-                      final changePercent = ((priceChange / (stockDetails['pc'] ?? 1)) * 100).toStringAsFixed(2);
+                      final currentPrice =
+                          stockDetails['c']?.toStringAsFixed(2);
+                      final priceChange = (stockDetails['c'] ?? 0.0) -
+                          (stockDetails['pc'] ?? 0.0);
+                      final changePercent =
+                          ((priceChange / (stockDetails['pc'] ?? 1)) * 100)
+                              .toStringAsFixed(2);
                       final isPositive = priceChange >= 0;
 
                       //display stock tile
@@ -455,40 +559,48 @@ class _StocksTabState extends State<StocksTab> {
                         leading: const Icon(Icons.star, color: Colors.amber),
                         title: Text(stock['symbol']),
                         subtitle: Text(stock['name']),
-                        trailing: snapshot.hasData ? Row(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            //display stock price
-                            Text(
-                              '\$$currentPrice',
-                              style: const TextStyle(
-                                fontWeight: FontWeight.bold,
+                        trailing: snapshot.hasData
+                            ? Row(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  //display stock price
+                                  Text(
+                                    '\$$currentPrice',
+                                    style: const TextStyle(
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                  ),
+                                  const SizedBox(width: 8),
+                                  //display stock change percentage
+                                  Container(
+                                    padding: const EdgeInsets.symmetric(
+                                        horizontal: 6, vertical: 2),
+                                    decoration: BoxDecoration(
+                                      color: isPositive
+                                          ? Colors.green[50]
+                                          : Colors.red[50],
+                                      borderRadius: BorderRadius.circular(4),
+                                    ),
+                                    child: Text(
+                                      '${isPositive ? '+' : ''}$changePercent%',
+                                      style: TextStyle(
+                                        color: isPositive
+                                            ? Colors.green
+                                            : Colors.red,
+                                        fontWeight: FontWeight.bold,
+                                      ),
+                                    ),
+                                  ),
+                                  const SizedBox(width: 8),
+                                  const Icon(Icons.arrow_forward_ios, size: 16),
+                                ],
+                              )
+                            : const SizedBox(
+                                height: 20,
+                                width: 20,
+                                child:
+                                    CircularProgressIndicator(strokeWidth: 2),
                               ),
-                            ),
-                            const SizedBox(width: 8),
-                            //display stock change percentage
-                            Container(
-                              padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
-                              decoration: BoxDecoration(
-                                color: isPositive ? Colors.green[50] : Colors.red[50],
-                                borderRadius: BorderRadius.circular(4),
-                              ),
-                              child: Text(
-                                '${isPositive ? '+' : ''}$changePercent%',
-                                style: TextStyle(
-                                  color: isPositive ? Colors.green : Colors.red,
-                                  fontWeight: FontWeight.bold,
-                                ),
-                              ),
-                            ),
-                            const SizedBox(width: 8),
-                            const Icon(Icons.arrow_forward_ios, size: 16),
-                          ],
-                        ) : const SizedBox(
-                          height: 20,
-                          width: 20,
-                          child: CircularProgressIndicator(strokeWidth: 2),
-                        ),
                         onTap: () {
                           //navigate to stock detail screen
                           Navigator.push(
@@ -526,61 +638,5 @@ class NewsTab extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return NewsFeedScreen();
-  }
-}
-
-//settings tab
-class SettingsScreen extends StatelessWidget {
-  const SettingsScreen({Key? key}) : super(key: key);
-
-  void _logOut(BuildContext context) {
-    Navigator.of(context).pushReplacementNamed('/login');
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('Settings'),
-        backgroundColor: Colors.blue[100],
-      ),
-      body: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-        const SizedBox(height: 20),
-        ListTile(
-          leading: const Icon(Icons.person),
-          title: const Text('Account'),
-          onTap: () {
-            //todo: add account settings
-          },
-        ),
-        ListTile(
-          leading: const Icon(Icons.notifications),
-          title: const Text('Notifications'),
-          onTap: () {
-            //todo: add notification settings
-          },
-        ),
-        ListTile(
-          leading: const Icon(Icons.privacy_tip),
-          title: const Text('Privacy'),
-          onTap: () {
-            //todo: add privacy settings
-          },
-        ),
-        const SizedBox(height: 40),
-        ElevatedButton.icon(
-          onPressed: () => _logOut(context),
-          icon: const Icon(Icons.logout),
-          label: const Text('Log Out'),
-          style: ElevatedButton.styleFrom(
-            backgroundColor: Colors.redAccent,
-              padding: const EdgeInsets.symmetric(horizontal: 30, vertical: 10),
-            ),
-          ),
-        ],
-      ),
-    );
   }
 }

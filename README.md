@@ -1,16 +1,24 @@
-# stock_tracker
+## Problem: Users need a Stock Tracker App that allows them to easily track stock prices, monitor their favorite stocks through watchlists, get real-time financial updates, and manage their stock portfolio efficiently.
 
-A new Flutter project.
+## Requirements:
+Display real-time stock prices, historical data, and interactive price charts.
+Allow users to search for stocks by name or ticker symbol and view their performance.
+Users can add and remove stocks from their personal watchlist.
+Provide relevant financial news for stocks on the watchlist and top financial updates.
+Firebase authentication for secure user sign-up/sign-in, enabling personalized features like saving watchlists.
 
-## Getting Started
+## Inputs:
+Users can search for stocks by ticker symbol, company name, or keywords.
+Users can add/remove stocks to/from their watchlist and view real-time data.
+Users can set preferences for news topics (e.g., by industry or stock) and monitor specific market trends.
 
-This project is a starting point for a Flutter application.
+## Outputs:
+Show search results filtered by user inputs such as stock name, ticker symbol, or keywords.
+A dedicated list showing the user's favorite stocks with live updates on price and performance.
+A personalized news feed showing articles related to the user’s stock watchlist or financial market updates.
 
-A few resources to get you started if this is your first Flutter project:
+# How to run
+Clone github repo and run these commands in terminal:
 
-- [Lab: Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://docs.flutter.dev/cookbook)
-
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+flutter pub get
+flutter run

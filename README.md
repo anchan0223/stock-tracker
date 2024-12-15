@@ -25,5 +25,5 @@ flutter pub get
 flutter run
 
 ## Presentation Links:
-Video: 
+Video: https://www.youtube.com/watch?v=vvK-K1lfHQs&ab_channel=anna 
 Presentation: https://docs.google.com/presentation/d/14hFxh3_yPD1RwGZPerh9WWSAIbFHaqoKNV1f33vc-H8/edit?usp=sharing 
